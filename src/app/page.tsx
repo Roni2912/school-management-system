@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import HomePageClient from './HomePageClient';
 
 export const metadata: Metadata = {
-  title: 'School Management System | Modern Educational Directory',
-  description: 'A modern platform to manage and discover educational institutions with ease. Add schools, browse directories, and connect with educational communities.',
-  keywords: 'school management, education, directory, institutions, learning, academic, school registration',
+  title: 'SchoolHub Pro | Professional School Management Platform',
+  description: 'Enterprise-grade school management system for educational institutions. Streamline administration, manage directories, and enhance educational operations with professional tools.',
+  keywords: 'school management, education software, educational institutions, professional, enterprise, school administration, directory management, educational platform',
   openGraph: {
-    title: 'School Management System',
-    description: 'A modern platform to manage and discover educational institutions with ease.',
+    title: 'SchoolHub Pro - Professional School Management',
+    description: 'Enterprise-grade school management system for educational institutions worldwide.',
     type: 'website',
   },
 };

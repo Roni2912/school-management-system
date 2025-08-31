@@ -132,7 +132,7 @@ export default function TestErrorHandlingPage() {
                 <div className="flex gap-4">
                   <Button 
                     onClick={() => setShouldThrowError(!shouldThrowError)}
-                    variant={shouldThrowError ? "destructive" : "default"}
+                    variant={shouldThrowError ? "secondary" : "primary"}
                   >
                     {shouldThrowError ? 'Stop Throwing Error' : 'Throw Component Error'}
                   </Button>
@@ -144,7 +144,7 @@ export default function TestErrorHandlingPage() {
                       <p className="text-red-800">🚨 Error Boundary caught an error!</p>
                       <button 
                         onClick={() => setShouldThrowError(false)}
-                        className="mt-2 px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                        className="mt-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium shadow-soft hover:shadow-medium"
                       >
                         Reset Component
                       </button>
@@ -223,7 +223,7 @@ export default function TestErrorHandlingPage() {
                   <Button onClick={() => testLoadingState('error')} variant="secondary">
                     Test Error State
                   </Button>
-                  <Button onClick={() => setLoadingStateDemo('idle')} variant="outline">
+                  <Button onClick={() => setLoadingStateDemo('idle')} variant="ghost">
                     Reset to Idle
                   </Button>
                 </div>
@@ -269,7 +269,7 @@ export default function TestErrorHandlingPage() {
                   </Button>
                   <Button 
                     onClick={loadingState.reset}
-                    variant="outline"
+                    variant="ghost"
                     disabled={loadingState.loading}
                   >
                     Reset State

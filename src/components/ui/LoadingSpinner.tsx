@@ -28,32 +28,52 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <svg
-      className={cn(
-        'animate-spin',
-        sizeClasses[size],
-        colorClasses[color],
-        className
+    <div className="relative gpu-accelerated">
+      <svg
+        className={cn(
+          'animate-spin will-change-transform',
+          sizeClasses[size],
+          colorClasses[color],
+          className
+        )}
+        fill="none"
+        viewBox="0 0 24 24"
+        aria-label="Loading content"
+        role="status"
+        aria-live="polite"
+      >
+        <title>Loading</title>
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        />
+      </svg>
+      
+      {/* Screen reader text */}
+      <span className="sr-only">Loading content, please wait...</span>
+      
+      {/* Enhanced glow effect for larger spinners - optimized for performance */}
+      {(size === 'lg' || size === 'xl') && (
+        <div 
+          className={cn(
+            'absolute inset-0 rounded-full opacity-20 will-change-opacity',
+            colorClasses[color].replace('text-', 'bg-')
+          )}
+          style={{
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }}
+        />
       )}
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-label="Loading"
-      role="status"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
-    </svg>
+    </div>
   );
 };
 
@@ -74,10 +94,21 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     <div className={cn('relative', className)}>
       {children}
       {isLoading && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
-          <div className="text-center">
-            <LoadingSpinner size="lg" />
-            <p className="mt-3 text-sm font-medium text-gray-700">{message}</p>
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-md flex items-center justify-center z-50 rounded-lg animate-fade-in">
+          <div className="text-center p-8 bg-white/80 rounded-xl shadow-lg border border-gray-200 animate-scale-in">
+            <LoadingSpinner size="lg" className="animate-glow" />
+            <p className="mt-4 text-sm font-medium text-gray-700 animate-pulse">{message}</p>
+            <div className="mt-3 flex justify-center">
+              <div className="flex space-x-1">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -130,7 +161,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                className="px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 ease-in-out font-medium shadow-soft hover:shadow-medium"
               >
                 Try Again
               </button>

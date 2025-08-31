@@ -4,6 +4,9 @@ import React from 'react';
 import { SchoolCard, type SchoolData } from '@/components/SchoolCard';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingState, LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { GridSkeleton } from '@/components/ui/SkeletonLoader';
+import { FadeIn, Stagger } from '@/components/ui/AnimationUtils';
+import { ProfessionalGrid } from '@/components/ui/ProfessionalGrid';
 import { cn } from '@/lib/utils';
 
 export interface SchoolsGridProps {
@@ -28,55 +31,21 @@ export const SchoolsGrid: React.FC<SchoolsGridProps> = ({
         error={error}
         onRetry={() => window.location.reload()}
         loadingComponent={
-          <div className="space-y-6">
-            {/* Loading header */}
+          <div className="space-y-8">
+            {/* Enhanced Loading Header */}
             <div className="flex items-center justify-center">
-              <div className="text-center">
-                <LoadingSpinner size="lg" />
-                <p className="mt-3 text-sm font-medium text-gray-700">Loading schools...</p>
-                <p className="mt-1 text-xs text-gray-500">Please wait while we fetch the latest data</p>
+              <div className="text-center animate-fade-in">
+                <div className="relative">
+                  <LoadingSpinner size="lg" className="animate-glow" />
+                  <div className="absolute inset-0 bg-primary-500/20 rounded-full animate-ping" />
+                </div>
+                <p className="mt-4 text-lg font-medium text-gray-700 animate-pulse">Loading schools...</p>
+                <p className="mt-2 text-sm text-gray-500">Please wait while we fetch the latest data</p>
               </div>
             </div>
             
-            {/* Loading skeleton grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden animate-pulse"
-                >
-                  {/* Image skeleton */}
-                  <div className="w-full h-48 bg-gray-200" />
-                  
-                  {/* Content skeleton */}
-                  <div className="p-6 space-y-4">
-                    {/* Title skeleton */}
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
-                    
-                    {/* Address skeleton */}
-                    <div className="flex items-start space-x-3">
-                      <div className="w-5 h-5 bg-gray-200 rounded mt-0.5" />
-                      <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-full" />
-                        <div className="h-4 bg-gray-200 rounded w-2/3" />
-                      </div>
-                    </div>
-                    
-                    {/* Contact skeleton */}
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 rounded" />
-                        <div className="h-4 bg-gray-200 rounded w-1/2" />
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 rounded" />
-                        <div className="h-4 bg-gray-200 rounded w-2/3" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Professional Skeleton Grid */}
+            <GridSkeleton items={6} columns={3} className="animate-fade-in" />
           </div>
         }
         errorComponent={
@@ -114,59 +83,98 @@ export const SchoolsGrid: React.FC<SchoolsGridProps> = ({
           />
         ) : (
           <>
-            {/* Grid Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+            {/* Enhanced Professional Grid Header */}
+            <div className="mb-10">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
                     Schools Directory
                   </h2>
-                  <p className="text-gray-600 mt-1">
-                    {schools.length} {schools.length === 1 ? 'school' : 'schools'} found
-                  </p>
+                  <div className="flex items-center space-x-4">
+                    <p className="text-gray-600 text-lg">
+                      {schools.length} {schools.length === 1 ? 'school' : 'schools'} found
+                    </p>
+                    <div className="hidden sm:block w-1 h-1 bg-gray-400 rounded-full" />
+                    <p className="hidden sm:block text-gray-500 text-sm">
+                      Updated {new Date().toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
                 
                 {onAddSchool && (
-                  <button
-                    onClick={onAddSchool}
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={onAddSchool}
+                      className="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-medium hover:shadow-strong"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Add School
-                  </button>
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      Add School
+                    </button>
+                  </div>
                 )}
               </div>
+              
+              {/* Professional divider */}
+              <div className="mt-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
             </div>
 
-            {/* Schools Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {schools.map((school) => (
-                <SchoolCard
+            {/* Enhanced Professional Schools Grid with Staggered Animations */}
+            <ProfessionalGrid
+              spacing="md"
+              columns={{
+                mobile: 1,
+                tablet: 2,
+                desktop: 3,
+                large: 4,
+                ultrawide: 5
+              }}
+            >
+              {schools.map((school, index) => (
+                <FadeIn
                   key={school.id}
-                  school={school}
+                  delay={index * 100}
+                  direction="up"
                   className="h-full"
-                />
+                >
+                  <SchoolCard
+                    school={school}
+                    className="h-full"
+                  />
+                </FadeIn>
               ))}
-            </div>
+            </ProfessionalGrid>
 
-            {/* Grid Footer */}
-            <div className="mt-12 text-center">
-              <p className="text-gray-500 text-sm">
-                Showing all {schools.length} {schools.length === 1 ? 'school' : 'schools'}
-              </p>
+            {/* Enhanced Professional Grid Footer */}
+            <div className="mt-16 pt-8 border-t border-gray-200/60">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-medium">
+                    Showing all {schools.length} {schools.length === 1 ? 'school' : 'schools'}
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                  <span>Last updated: {new Date().toLocaleTimeString()}</span>
+                  <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                  <span>Professional Directory</span>
+                </div>
+              </div>
             </div>
           </>
         )}

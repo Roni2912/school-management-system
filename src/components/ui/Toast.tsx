@@ -95,7 +95,7 @@ export const Toast: React.FC<ToastProps> = ({
         </div>
         <button
           type="button"
-          className="ml-4 flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+          className="ml-4 flex-shrink-0 text-gray-400 hover:text-gray-600 hover:scale-110 active:scale-95 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 rounded-sm p-1"
           onClick={() => {
             setIsExiting(true);
             setTimeout(() => {

@@ -3,3 +3,11 @@
 
 // Load environment variables for testing
 require('dotenv').config({ path: '.env.local' })
+
+// Add testing library jest-dom matchers
+import '@testing-library/jest-dom'
+
+// Mock TextEncoder/TextDecoder for Node.js environment
+const { TextEncoder, TextDecoder } = require('util')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder

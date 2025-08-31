@@ -1,36 +1,54 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Layout from "@/components/Layout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import PerformanceMonitor from "@/components/PerformanceMonitor";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "School Management System",
-  description: "A modern school management system for adding and viewing educational institutions",
-  keywords: ["school", "management", "education", "Next.js", "React"],
-  authors: [{ name: "School Management Team" }],
+  title: "SchoolHub Pro - Professional School Management",
+  description: "Enterprise-grade school management system for educational institutions. Streamline administration, manage schools, and enhance educational operations with professional tools.",
+  keywords: ["school management", "education software", "school administration", "educational institutions", "professional", "enterprise"],
+  authors: [{ name: "SchoolHub Pro Team" }],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: "SchoolHub Pro - Professional School Management",
+    description: "Enterprise-grade school management system for educational institutions",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SchoolHub Pro - Professional School Management",
+    description: "Enterprise-grade school management system for educational institutions",
+  },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  colorScheme: 'light',
+  themeColor: "#2563eb", // Professional primary brand color
 };
 
 export default function RootLayout({
@@ -39,35 +57,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme') || 'system';
-                  var root = document.documentElement;
-                  var resolvedTheme = 'light';
-                  
-                  if (theme === 'system') {
-                    resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  } else {
-                    resolvedTheme = theme;
-                  }
-                  
-                  root.classList.remove('light', 'dark');
-                  root.classList.add(resolvedTheme);
-                } catch (e) {
-                  document.documentElement.classList.add('light');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${poppins.variable} antialiased`}
       >
         <PerformanceMonitor />
         <ErrorBoundary>

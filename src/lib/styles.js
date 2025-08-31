@@ -13,34 +13,28 @@ export function cn(...inputs) {
 }
 
 /**
- * Button variant styles
+ * Professional Button variant styles
  */
 export const buttonVariants = {
-  default: 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-soft hover:shadow-medium',
-  destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-soft hover:shadow-medium',
-  outline: 'border border-border bg-background hover:bg-accent hover:text-accent-foreground shadow-soft hover:shadow-medium',
-  secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-soft hover:shadow-medium',
-  ghost: 'hover:bg-accent hover:text-accent-foreground',
-  link: 'text-primary underline-offset-4 hover:underline',
-  success: 'bg-success text-success-foreground hover:bg-success/90 shadow-soft hover:shadow-medium',
-  warning: 'bg-warning text-warning-foreground hover:bg-warning/90 shadow-soft hover:shadow-medium',
+  primary: 'bg-primary-600 text-white border border-primary-600 hover:bg-primary-700 hover:border-primary-700 hover:shadow-[0_4px_12px_rgba(37,99,235,0.3)]',
+  secondary: 'bg-transparent text-primary-600 border border-primary-600 hover:bg-primary-50 hover:text-primary-700 hover:border-primary-700',
+  ghost: 'bg-transparent text-gray-600 border border-transparent hover:bg-gray-100 hover:text-gray-900',
 };
 
 export const buttonSizes = {
-  default: 'h-10 px-4 py-2',
-  sm: 'h-9 rounded-md px-3',
-  lg: 'h-11 rounded-md px-8',
-  icon: 'h-10 w-10',
+  sm: 'px-3 py-2 text-sm h-9',
+  md: 'px-4 py-2.5 text-sm h-10',
+  lg: 'px-6 py-3 text-base h-12',
 };
 
 /**
- * Input variant styles
+ * Professional Input variant styles
  */
 export const inputVariants = {
-  default: 'border-border bg-background hover:border-ring focus:border-ring focus:ring-ring/20',
-  error: 'border-destructive bg-background focus:border-destructive focus:ring-destructive/20',
-  success: 'border-success bg-background focus:border-success focus:ring-success/20',
-  warning: 'border-warning bg-background focus:border-warning focus:ring-warning/20',
+  default: 'border-gray-300 bg-white hover:border-gray-400 focus:border-primary-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.1)]',
+  error: 'border-red-300 bg-white hover:border-red-400 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]',
+  success: 'border-green-300 bg-white hover:border-green-400 focus:border-green-500 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.1)]',
+  warning: 'border-yellow-300 bg-white hover:border-yellow-400 focus:border-yellow-500 focus:shadow-[0_0_0_3px_rgba(245,158,11,0.1)]',
 };
 
 /**
@@ -112,31 +106,60 @@ export const spacing = {
 };
 
 /**
- * Generate button classes
+ * Generate professional button classes
  */
-export function getButtonClasses(variant = 'default', size = 'default', className = '') {
+export function getButtonClasses(variant = 'primary', size = 'md', className = '') {
   return cn(
-    'inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-    'disabled:pointer-events-none disabled:opacity-50',
-    'hover:scale-105 active:scale-95',
-    buttonVariants[variant],
-    buttonSizes[size],
+    // Professional base styles
+    'inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out rounded-lg',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500',
+    'disabled:pointer-events-none disabled:opacity-60 disabled:cursor-not-allowed',
+    'relative overflow-hidden transform hover:scale-[1.02] active:scale-[0.98]',
+    'hover:shadow-medium active:shadow-soft',
+    buttonVariants[variant] || buttonVariants.primary,
+    buttonSizes[size] || buttonSizes.md,
     className
   );
 }
 
 /**
- * Generate input classes
+ * Generate professional input classes
  */
 export function getInputClasses(variant = 'default', className = '') {
   return cn(
-    'flex h-10 w-full rounded-md border px-3 py-2 text-sm',
-    'file:border-0 file:bg-transparent file:text-sm file:font-medium',
-    'placeholder:text-muted-foreground',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-    'disabled:cursor-not-allowed disabled:opacity-50',
-    'transition-all duration-200',
+    // Professional base styling
+    'w-full rounded-lg border-2 bg-white px-4 py-3 text-base font-medium',
+    'placeholder:text-gray-400 placeholder:font-normal',
+    'focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out',
+    'text-gray-900 leading-tight',
+    
+    // File input styling
+    'file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-gray-700',
+    
+    // Disabled state
+    'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200',
+    
+    // Variant-specific styles
+    inputVariants[variant],
+    className
+  );
+}
+
+/**
+ * Generate professional textarea classes
+ */
+export function getTextAreaClasses(variant = 'default', className = '') {
+  return cn(
+    // Professional base styling
+    'w-full rounded-lg border-2 bg-white px-4 py-3 text-base font-medium',
+    'placeholder:text-gray-400 placeholder:font-normal',
+    'focus:outline-none focus:ring-0 transition-all duration-200 ease-in-out resize-none',
+    'text-gray-900 leading-relaxed',
+    
+    // Disabled state
+    'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200',
+    
+    // Variant-specific styles
     inputVariants[variant],
     className
   );
