@@ -1,17 +1,26 @@
 import { Pool } from 'pg'
 
-const dbConfig = {
-  // Use Supabase variables in production, fallback to local dev variables
-  host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
-  user: process.env.POSTGRES_USER || process.env.DB_USER || 'root',
-  password: process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || '',
-  database: process.env.POSTGRES_DATABASE || process.env.DB_NAME || 'school_management',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  max: 10, // maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle
-  connectionTimeoutMillis: 2000, // how long to wait for a connection
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-}
+// Use connection string in production (Supabase), individual params for local dev
+const dbConfig = process.env.POSTGRES_URL 
+  ? {
+      connectionString: process.env.POSTGRES_URL,
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000, // Increased timeout for Supabase
+      ssl: { rejectUnauthorized: false },
+    }
+  : {
+      // Local development configuration
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'school_management',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      ssl: false,
+    }
 
 // Create connection pool
 const pool = new Pool(dbConfig)
