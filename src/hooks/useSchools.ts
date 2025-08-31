@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { type SchoolData } from '@/components/SchoolCard';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useLoadingState } from '@/hooks/useLoadingState';
 
 export interface UseSchoolsResult {
   schools: SchoolData[];
@@ -20,13 +22,19 @@ export interface ApiResponse<T> {
 
 export const useSchools = (): UseSchoolsResult => {
   const [schools, setSchools] = useState<SchoolData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { handleError } = useErrorHandler();
+  const loadingState = useLoadingState({
+    initialLoading: true,
+    timeout: 15000, // 15 second timeout for fetching schools
+    onTimeout: () => {
+      setError('Request timeout. Please check your connection and try again.');
+    }
+  });
+
+  const { loading, error, setError } = loadingState;
 
   const fetchSchools = useCallback(async (): Promise<void> => {
-    try {
-      setError(null);
-      
+    const result = await loadingState.executeAsync(async () => {
       const response = await fetch('/api/schools', {
         method: 'GET',
         headers: {
@@ -37,17 +45,26 @@ export const useSchools = (): UseSchoolsResult => {
       });
 
       if (!response.ok) {
+        // Create API error with status
+        const apiError = new Error() as Error & { status?: number };
+        apiError.status = response.status;
+        
         // Handle different HTTP error statuses
         switch (response.status) {
           case 404:
-            throw new Error('Schools API endpoint not found');
+            apiError.message = 'Schools API endpoint not found';
+            break;
           case 500:
-            throw new Error('Server error occurred while fetching schools');
+            apiError.message = 'Server error occurred while fetching schools';
+            break;
           case 503:
-            throw new Error('Service temporarily unavailable');
+            apiError.message = 'Service temporarily unavailable';
+            break;
           default:
-            throw new Error(`Failed to fetch schools (${response.status})`);
+            apiError.message = `Failed to fetch schools (${response.status})`;
         }
+        
+        throw apiError;
       }
 
       const result: ApiResponse<SchoolData[]> = await response.json();
@@ -74,31 +91,29 @@ export const useSchools = (): UseSchoolsResult => {
         );
       });
 
-      setSchools(validSchools);
-      
       // Log warning if some schools were filtered out
       if (validSchools.length !== schoolsData.length) {
         console.warn(`Filtered out ${schoolsData.length - validSchools.length} invalid school records`);
       }
 
-    } catch (err) {
-      console.error('Error fetching schools:', err);
-      
-      // Set user-friendly error messages
-      if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Unable to connect to the server. Please check your internet connection.');
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred while loading schools.');
-      }
+      setSchools(validSchools);
+      return validSchools;
+    }, (error) => {
+      // Use error handler for consistent error handling
+      const handledError = handleError(error, { showToast: false });
       
       // Keep existing schools data on error to avoid jarring UX
-      // setSchools([]);
-    } finally {
-      setLoading(false);
+      // Don't clear schools array to maintain better UX
+      
+      return handledError.message;
+    });
+
+    // If fetch failed, keep existing schools but show error state
+    if (!result && schools.length === 0) {
+      // Only clear schools if we have no existing data
+      setSchools([]);
     }
-  }, []);
+  }, [loadingState, handleError, schools.length]);
 
   // Initial fetch on mount
   useEffect(() => {
@@ -107,9 +122,10 @@ export const useSchools = (): UseSchoolsResult => {
 
   // Refetch function (shows loading state)
   const refetch = useCallback(async (): Promise<void> => {
-    setLoading(true);
+    loadingState.reset();
+    loadingState.startLoading();
     await fetchSchools();
-  }, [fetchSchools]);
+  }, [fetchSchools, loadingState]);
 
   // Refresh function (doesn't show loading state, for silent updates)
   const refresh = useCallback(async (): Promise<void> => {

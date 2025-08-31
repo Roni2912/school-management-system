@@ -6,6 +6,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { LoadingOverlay } from '@/components/ui/LoadingSpinner';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useLoadingState } from '@/hooks/useLoadingState';
 import { schoolFormResolver, resetFormWithDefaults } from '@/lib/form-utils';
 import { validateFileUpload, type SchoolFormData } from '@/lib/validations';
 import { cn } from '@/lib/utils';
@@ -23,6 +26,13 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({ onSubmit, className }) =
   const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false);
   
   const { showSuccess, showError, showInfo } = useToast();
+  const { handleError } = useErrorHandler();
+  const loadingState = useLoadingState({
+    timeout: 30000, // 30 second timeout
+    onTimeout: () => {
+      showError('Request Timeout', 'The request is taking too long. Please try again.');
+    }
+  });
 
   const form = useForm<SchoolFormData>({
     resolver: schoolFormResolver,
@@ -114,7 +124,7 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({ onSubmit, className }) =
 
   // Handle form submission
   const handleFormSubmit = async (data: SchoolFormData) => {
-    try {
+    const result = await loadingState.executeAsync(async () => {
       setUploadProgress(0);
       setIsSubmissionSuccessful(false);
       
@@ -130,27 +140,34 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({ onSubmit, className }) =
           });
         }, 100);
 
-        const result = await onSubmit(data);
-        
-        clearInterval(progressInterval);
-        setUploadProgress(100);
-        
-        if (result.success) {
-          setIsSubmissionSuccessful(true);
-          showSuccess(
-            'School Added Successfully!',
-            `${data.name} has been added to the directory.`
-          );
+        try {
+          const result = await onSubmit(data);
           
-          // Reset form after successful submission
-          setTimeout(() => {
-            resetFormWithDefaults(form);
-            removeImage();
-            setUploadProgress(0);
-            setIsSubmissionSuccessful(false);
-          }, 2000);
-        } else {
-          throw new Error(result.message || 'Failed to add school');
+          clearInterval(progressInterval);
+          setUploadProgress(100);
+          
+          if (result.success) {
+            setIsSubmissionSuccessful(true);
+            showSuccess(
+              'School Added Successfully!',
+              `${data.name} has been added to the directory.`
+            );
+            
+            // Reset form after successful submission
+            setTimeout(() => {
+              resetFormWithDefaults(form);
+              removeImage();
+              setUploadProgress(0);
+              setIsSubmissionSuccessful(false);
+            }, 2000);
+            
+            return result;
+          } else {
+            throw new Error(result.message || 'Failed to add school');
+          }
+        } catch (error) {
+          clearInterval(progressInterval);
+          throw error;
         }
       } else {
         // Default behavior when no onSubmit handler is provided
@@ -164,23 +181,33 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({ onSubmit, className }) =
           resetFormWithDefaults(form);
           removeImage();
         }, 2000);
+        
+        return { success: true };
       }
-    } catch (error) {
+    }, (error) => {
       setUploadProgress(0);
       setIsSubmissionSuccessful(false);
       
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      // Use error handler for consistent error handling
+      const handledError = handleError(error, { showToast: false });
+      return handledError.message;
+    });
+
+    // Show error toast if submission failed
+    if (!result) {
       showError(
         'Failed to Add School',
-        errorMessage
+        loadingState.error || 'An unexpected error occurred'
       );
-      
-      console.error('Form submission error:', error);
     }
   };
 
   return (
-    <div className={cn('max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm border', className)}>
+    <LoadingOverlay 
+      isLoading={loadingState.loading} 
+      message="Adding school to directory..."
+      className={cn('max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm border', className)}
+    >
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Add New School</h2>
         <p className="text-gray-600">Fill in the details below to add a new school to the directory.</p>
@@ -375,14 +402,14 @@ export const SchoolForm: React.FC<SchoolFormProps> = ({ onSubmit, className }) =
           </Button>
           <Button
             type="submit"
-            loading={isSubmitting}
-            disabled={isSubmitting || isSubmissionSuccessful}
+            loading={isSubmitting || loadingState.loading}
+            disabled={isSubmitting || loadingState.loading || isSubmissionSuccessful}
           >
-            {isSubmitting ? 'Adding School...' : isSubmissionSuccessful ? 'School Added!' : 'Add School'}
+            {isSubmitting || loadingState.loading ? 'Adding School...' : isSubmissionSuccessful ? 'School Added!' : 'Add School'}
           </Button>
         </div>
       </form>
-    </div>
+    </LoadingOverlay>
   );
 };
 

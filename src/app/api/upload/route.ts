@@ -100,8 +100,10 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
-        error: 'Internal server error during file upload',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        success: false,
+        error: 'File upload failed',
+        message: 'An error occurred while uploading the file. Please try again.',
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
       },
       { status: 500 }
     )

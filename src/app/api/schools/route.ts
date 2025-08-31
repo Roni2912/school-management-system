@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSchool, getAllSchools, DatabaseError } from '@/lib/db-utils'
-import { validateData, serverSchoolSchema, formatValidationErrors } from '@/lib/validations'
+import { validateData, serverSchoolSchema } from '@/lib/validations'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -108,13 +108,23 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof DatabaseError) {
       return NextResponse.json(
-        { error: 'Database error: ' + error.message },
+        { 
+          success: false,
+          error: 'Database connection failed',
+          message: 'Unable to save school to database. Please try again later.',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        },
         { status: 500 }
       )
     }
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        success: false,
+        error: 'Internal server error',
+        message: 'An unexpected error occurred while creating the school.',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      },
       { status: 500 }
     )
   }
@@ -139,13 +149,23 @@ export async function GET() {
     
     if (error instanceof DatabaseError) {
       return NextResponse.json(
-        { error: 'Database error: ' + error.message },
+        { 
+          success: false,
+          error: 'Database connection failed',
+          message: 'Unable to connect to the database. Please try again later.',
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        },
         { status: 500 }
       )
     }
     
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        success: false,
+        error: 'Internal server error',
+        message: 'An unexpected error occurred while fetching schools.',
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      },
       { status: 500 }
     )
   }
