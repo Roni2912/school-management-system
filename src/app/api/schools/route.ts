@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create school in database
-    const newSchool = await createSchool(validation.data)
+    const newSchool = await createSchool(validation.data!)
     
     return NextResponse.json(
       {
