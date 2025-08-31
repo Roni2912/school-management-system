@@ -135,14 +135,27 @@ export async function GET() {
   try {
     const schools = await getAllSchools()
     
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         data: schools,
-        count: schools.length
+        count: schools.length,
+        timestamp: new Date().toISOString()
       },
       { status: 200 }
     )
+
+    // Add caching headers for production
+    if (process.env.NODE_ENV === 'production') {
+      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300')
+      response.headers.set('CDN-Cache-Control', 'public, s-maxage=60')
+      response.headers.set('Vercel-CDN-Cache-Control', 'public, s-maxage=60')
+    } else {
+      // No caching in development
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    }
+
+    return response
     
   } catch (error) {
     console.error('Error fetching schools:', error)

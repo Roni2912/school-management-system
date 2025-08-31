@@ -4,13 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
+    "build:standalone": "BUILD_STANDALONE=true next build",
     "start": "next start",
+    "start:prod": "NODE_ENV=production next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "setup-db": "node scripts/setup-database.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "clean": "rm -rf .next out",
+    "export": "next export",
+    "optimize": "node scripts/optimize-production.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -40,6 +47,7 @@
     "tailwindcss": "^4",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

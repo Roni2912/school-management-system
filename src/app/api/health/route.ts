@@ -10,7 +10,7 @@ export async function GET() {
     const dbStatus = await getDatabaseStatus()
     
     if (dbStatus.available) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { 
           status: 'healthy', 
           database: 'connected',
@@ -19,8 +19,12 @@ export async function GET() {
         },
         { status: 200 }
       )
+      
+      // Short cache for health checks
+      response.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60')
+      return response
     } else {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { 
           status: 'degraded', 
           database: 'disconnected',
@@ -31,10 +35,14 @@ export async function GET() {
         },
         { status: 503 }
       )
+      
+      // No caching for error states
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+      return response
     }
   } catch (error) {
     console.error('Health check failed:', error)
-    return NextResponse.json(
+    const response = NextResponse.json(
       { 
         status: 'error', 
         database: 'error',
@@ -43,5 +51,9 @@ export async function GET() {
       },
       { status: 500 }
     )
+    
+    // No caching for error states
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    return response
   }
 }
