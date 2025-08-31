@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
       await mkdir(uploadDir, { recursive: true })
     } catch (error) {
       // Directory might already exist, continue
-      console.log('Upload directory already exists or created')
     }
     
     // Save file

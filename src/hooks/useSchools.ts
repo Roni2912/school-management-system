@@ -76,12 +76,16 @@ export const useSchools = (): UseSchoolsResult => {
       // Ensure we have an array of schools
       const schoolsData = result.data || [];
       
-      // Validate the data structure
-      const validSchools = schoolsData.filter((school): school is SchoolData => {
+      // Validate the data structure and convert string IDs to numbers
+      const validSchools = schoolsData.map(school => ({
+        ...school,
+        id: typeof school.id === 'string' ? parseInt(school.id, 10) : school.id
+      })).filter((school): school is SchoolData => {
         return (
           school &&
           typeof school === 'object' &&
           typeof school.id === 'number' &&
+          !isNaN(school.id) &&
           typeof school.name === 'string' &&
           typeof school.address === 'string' &&
           typeof school.city === 'string' &&
@@ -91,10 +95,7 @@ export const useSchools = (): UseSchoolsResult => {
         );
       });
 
-      // Log warning if some schools were filtered out
-      if (validSchools.length !== schoolsData.length) {
-        console.warn(`Filtered out ${schoolsData.length - validSchools.length} invalid school records`);
-      }
+      // Note: Invalid school records are filtered out silently
 
       setSchools(validSchools);
       return validSchools;
@@ -113,12 +114,13 @@ export const useSchools = (): UseSchoolsResult => {
       // Only clear schools if we have no existing data
       setSchools([]);
     }
-  }, [loadingState, handleError, schools.length]);
+  }, [loadingState, handleError]);
 
   // Initial fetch on mount
   useEffect(() => {
     fetchSchools();
-  }, [fetchSchools]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Refetch function (shows loading state)
   const refetch = useCallback(async (): Promise<void> => {

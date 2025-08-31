@@ -43,24 +43,7 @@ export function throttle(func: (...args: unknown[]) => void, limit: number) {
 
 // Memory usage monitoring (development only)
 export const logMemoryUsage = () => {
-  if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
-    const memory = (
-      performance as unknown as {
-        memory?: {
-          usedJSHeapSize: number;
-          totalJSHeapSize: number;
-          jsHeapSizeLimit: number;
-        };
-      }
-    ).memory;
-    if (memory) {
-      console.log("Memory Usage:", {
-        used: Math.round(memory.usedJSHeapSize / 1048576) + " MB",
-        total: Math.round(memory.totalJSHeapSize / 1048576) + " MB",
-        limit: Math.round(memory.jsHeapSizeLimit / 1048576) + " MB",
-      });
-    }
-  }
+  // Memory monitoring removed for production
 };
 
 // Preload critical resources

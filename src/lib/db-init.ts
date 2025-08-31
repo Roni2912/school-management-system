@@ -17,25 +17,18 @@ export async function ensureDatabaseInitialized(): Promise<void> {
   }
 
   try {
-    console.log('🔍 Checking database connection...')
     const isConnected = await testConnection()
     
     if (!isConnected) {
-      console.warn('⚠️  Database connection failed - running in offline mode')
-      console.warn('💡 Run "npm run setup-db" to initialize the database')
       return
     }
 
-    console.log('🚀 Initializing database schema...')
     await initializeDatabase()
     
     isInitialized = true
-    console.log('✅ Database initialized successfully')
     
   } catch (error) {
-    console.error('❌ Database initialization failed:', error)
-    console.warn('⚠️  Application will continue in offline mode')
-    console.warn('💡 Check README-DATABASE.md for setup instructions')
+    // Application will continue in offline mode
   }
 }
 

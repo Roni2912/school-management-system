@@ -6,8 +6,10 @@ const dbConfig = process.env.POSTGRES_URL
       connectionString: process.env.POSTGRES_URL,
       max: 10,
       idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 10000, // Increased timeout for Supabase
-      ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 10000,
+      ssl: process.env.NODE_ENV === 'production' 
+        ? { rejectUnauthorized: false } 
+        : false, // No SSL for local development with Supabase URL
     }
   : {
       // Local development configuration
@@ -29,26 +31,11 @@ export default pool
 
 export async function testConnection(): Promise<boolean> {
   try {
-    console.log('Testing database connection...')
-    console.log('DB Config:', {
-      hasConnectionString: !!process.env.POSTGRES_URL,
-      host: process.env.POSTGRES_HOST,
-      database: process.env.POSTGRES_DATABASE,
-      nodeEnv: process.env.NODE_ENV
-    })
-    
     const client = await pool.connect()
     await client.query('SELECT NOW()')
     client.release()
-    console.log('Database connection successful')
     return true
   } catch (error) {
-    console.error('Database connection failed:', error)
-    console.error('Full error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      code: (error as any)?.code,
-      stack: error instanceof Error ? error.stack : undefined
-    })
     return false
   }
 }
@@ -58,9 +45,7 @@ export async function initializeDatabase(): Promise<void> {
     // PostgreSQL database should already exist (created manually)
     // Just create the schools table
     await createSchoolsTable()
-    console.log('Database initialized successfully')
   } catch (error) {
-    console.error('Database initialization failed:', error)
     throw error
   }
 }
@@ -89,9 +74,7 @@ export async function createSchoolsTable(): Promise<void> {
     const client = await pool.connect()
     await client.query(createTableQuery)
     client.release()
-    console.log('Schools table created successfully')
   } catch (error) {
-    console.error('Failed to create schools table:', error)
     throw error
   }
 }
@@ -106,7 +89,6 @@ export async function executeQuery<T = unknown>(
     const result = await client.query(query, params)
     return result.rows as T
   } catch (error) {
-    console.error('Query execution failed:', error)
     throw error
   } finally {
     if (client) {
@@ -118,9 +100,7 @@ export async function executeQuery<T = unknown>(
 export async function closePool(): Promise<void> {
   try {
     await pool.end()
-    console.log('Database pool closed')
   } catch (error) {
-    console.error('Error closing database pool:', error)
     throw error
   }
 }

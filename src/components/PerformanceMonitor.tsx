@@ -13,33 +13,7 @@ export default function PerformanceMonitor({ enabled = process.env.NODE_ENV === 
     // Monitor Core Web Vitals
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
-        if (entry.entryType === 'navigation') {
-          const navEntry = entry as PerformanceNavigationTiming
-          console.log('Navigation Timing:', {
-            'DNS Lookup': navEntry.domainLookupEnd - navEntry.domainLookupStart,
-            'TCP Connection': navEntry.connectEnd - navEntry.connectStart,
-            'Request': navEntry.responseStart - navEntry.requestStart,
-            'Response': navEntry.responseEnd - navEntry.responseStart,
-            'DOM Processing': navEntry.domContentLoadedEventEnd - navEntry.responseEnd,
-            'Total Load Time': navEntry.loadEventEnd - navEntry.fetchStart,
-          })
-        }
-
-        if (entry.entryType === 'largest-contentful-paint') {
-          console.log('LCP:', entry.startTime)
-        }
-
-        if (entry.entryType === 'first-input') {
-          const fidEntry = entry as PerformanceEventTiming & { processingStart: number }
-          console.log('FID:', fidEntry.processingStart - entry.startTime)
-        }
-
-        if (entry.entryType === 'layout-shift') {
-          const clsEntry = entry as PerformanceEntry & { hadRecentInput: boolean; value: number }
-          if (!clsEntry.hadRecentInput) {
-            console.log('CLS:', clsEntry.value)
-          }
-        }
+        // Performance metrics are collected but not logged in production
       })
     })
 
@@ -47,7 +21,7 @@ export default function PerformanceMonitor({ enabled = process.env.NODE_ENV === 
     try {
       observer.observe({ entryTypes: ['navigation', 'largest-contentful-paint', 'first-input', 'layout-shift'] })
     } catch (error) {
-      console.warn('Performance Observer not fully supported:', error)
+      // Performance Observer not fully supported
     }
 
     // Monitor memory usage
@@ -60,27 +34,19 @@ export default function PerformanceMonitor({ enabled = process.env.NODE_ENV === 
           limit: Math.round(memory.jsHeapSizeLimit / 1048576),
         }
         
-        // Only log if memory usage is high
-        if (memoryUsage.used > 50) {
-          console.log('Memory Usage (MB):', memoryUsage)
-        }
+        // Memory usage monitoring (no logging in production)
       }
     }, 30000) // Check every 30 seconds
 
     // Monitor long tasks
     const longTaskObserver = new PerformanceObserver((list) => {
-      list.getEntries().forEach((entry) => {
-        console.warn('Long Task detected:', {
-          duration: entry.duration,
-          startTime: entry.startTime,
-        })
-      })
+      // Long task detection (no logging in production)
     })
 
     try {
       longTaskObserver.observe({ entryTypes: ['longtask'] })
     } catch (error) {
-      console.warn('Long Task Observer not supported:', error)
+      // Long Task Observer not supported
     }
 
     // Cleanup
@@ -97,10 +63,6 @@ export default function PerformanceMonitor({ enabled = process.env.NODE_ENV === 
 
 // Web Vitals reporting function
 export const reportWebVitals = (metric: { name: string; value: number; id: string }) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Web Vital:', metric)
-  }
-  
   // In production, you might want to send this to an analytics service
   // Example: analytics.track('Web Vital', metric)
 }
