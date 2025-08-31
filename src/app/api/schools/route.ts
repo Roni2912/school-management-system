@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSchool, getAllSchools, DatabaseError } from '@/lib/db-utils'
 import { validateData, serverSchoolSchema } from '@/lib/validations'
+import { ensureDatabaseInitialized } from '@/lib/db-init'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
@@ -8,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid'
 // POST /api/schools - Create a new school
 export async function POST(request: NextRequest) {
   try {
+    // Ensure database is initialized
+    await ensureDatabaseInitialized()
     const formData = await request.formData()
     
     // Extract form fields
@@ -133,6 +136,8 @@ export async function POST(request: NextRequest) {
 // GET /api/schools - Retrieve all schools
 export async function GET() {
   try {
+    // Ensure database is initialized
+    await ensureDatabaseInitialized()
     const schools = await getAllSchools()
     
     const response = NextResponse.json(
