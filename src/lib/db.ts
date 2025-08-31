@@ -10,7 +10,7 @@ const dbConfig = process.env.POSTGRES_URL
       ssl: process.env.NODE_ENV === 'production' 
         ? { 
             rejectUnauthorized: false,
-            require: true 
+            checkServerIdentity: () => undefined 
           } 
         : false, // No SSL for local development with Supabase URL
     }
