@@ -7,12 +7,7 @@ const dbConfig = process.env.POSTGRES_URL
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
-      ssl: process.env.NODE_ENV === 'production' 
-        ? { 
-            rejectUnauthorized: false,
-            checkServerIdentity: () => undefined 
-          } 
-        : false, // No SSL for local development with Supabase URL
+      ssl: false, // Disable SSL completely to avoid certificate issues
     }
   : {
       // Local development configuration
