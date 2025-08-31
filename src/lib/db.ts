@@ -31,11 +31,29 @@ export default pool
 
 export async function testConnection(): Promise<boolean> {
   try {
+    // Production debugging - will be removed later
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🔍 Production DB Debug:', {
+        hasPostgresUrl: !!process.env.POSTGRES_URL,
+        urlPrefix: process.env.POSTGRES_URL?.substring(0, 25) + '...',
+        nodeEnv: process.env.NODE_ENV,
+        vercelEnv: process.env.VERCEL_ENV
+      })
+    }
+    
     const client = await pool.connect()
     await client.query('SELECT NOW()')
     client.release()
     return true
   } catch (error) {
+    // Production debugging - will be removed later
+    if (process.env.NODE_ENV === 'production') {
+      console.error('❌ Production DB Error:', {
+        message: error instanceof Error ? error.message : 'Unknown',
+        code: (error as any)?.code,
+        name: (error as any)?.name
+      })
+    }
     return false
   }
 }
