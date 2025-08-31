@@ -1,5 +1,4 @@
 import pool, { executeQuery } from './db'
-import { RowDataPacket, ResultSetHeader } from 'mysql2'
 
 export interface School {
   id: number
@@ -34,7 +33,8 @@ export class DatabaseError extends Error {
 export async function createSchool(schoolData: CreateSchoolData): Promise<School> {
   const query = `
     INSERT INTO schools (name, address, city, state, contact, email_id, image)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *
   `
   
   const params = [
@@ -48,12 +48,12 @@ export async function createSchool(schoolData: CreateSchoolData): Promise<School
   ]
 
   try {
-    const result = await executeQuery<ResultSetHeader>(query, params)
+    const result = await executeQuery<School[]>(query, params)
     
-    if (result.insertId) {
-      return await getSchoolById(result.insertId)
+    if (result.length > 0) {
+      return result[0]
     } else {
-      throw new DatabaseError('Failed to create school: No insert ID returned')
+      throw new DatabaseError('Failed to create school: No data returned')
     }
   } catch (error) {
     throw new DatabaseError(
@@ -64,16 +64,16 @@ export async function createSchool(schoolData: CreateSchoolData): Promise<School
 }
 
 export async function getSchoolById(id: number): Promise<School> {
-  const query = 'SELECT * FROM schools WHERE id = ?'
+  const query = 'SELECT * FROM schools WHERE id = $1'
   
   try {
-    const results = await executeQuery<RowDataPacket[]>(query, [id])
+    const results = await executeQuery<School[]>(query, [id])
     
     if (results.length === 0) {
       throw new DatabaseError(`School with ID ${id} not found`)
     }
     
-    return results[0] as School
+    return results[0]
   } catch (error) {
     throw new DatabaseError(
       `Failed to get school by ID ${id}`,
@@ -86,8 +86,8 @@ export async function getAllSchools(): Promise<School[]> {
   const query = 'SELECT * FROM schools ORDER BY created_at DESC'
   
   try {
-    const results = await executeQuery<RowDataPacket[]>(query)
-    return results as School[]
+    const results = await executeQuery<School[]>(query)
+    return results
   } catch (error) {
     throw new DatabaseError(
       'Failed to get all schools',
@@ -103,18 +103,18 @@ export async function updateSchool(id: number, schoolData: Partial<CreateSchoolD
     throw new DatabaseError('No fields to update')
   }
   
-  const setClause = fields.map(field => `${field} = ?`).join(', ')
-  const query = `UPDATE schools SET ${setClause} WHERE id = ?`
+  const setClause = fields.map((field, index) => `${field} = $${index + 1}`).join(', ')
+  const query = `UPDATE schools SET ${setClause}, updated_at = CURRENT_TIMESTAMP WHERE id = $${fields.length + 1} RETURNING *`
   const params = [...fields.map(field => schoolData[field as keyof CreateSchoolData]), id]
   
   try {
-    const result = await executeQuery<ResultSetHeader>(query, params)
+    const result = await executeQuery<School[]>(query, params)
     
-    if (result.affectedRows === 0) {
+    if (result.length === 0) {
       throw new DatabaseError(`School with ID ${id} not found`)
     }
     
-    return await getSchoolById(id)
+    return result[0]
   } catch (error) {
     throw new DatabaseError(
       `Failed to update school with ID ${id}`,
@@ -124,11 +124,13 @@ export async function updateSchool(id: number, schoolData: Partial<CreateSchoolD
 }
 
 export async function deleteSchool(id: number): Promise<boolean> {
-  const query = 'DELETE FROM schools WHERE id = ?'
+  const query = 'DELETE FROM schools WHERE id = $1'
   
   try {
-    const result = await executeQuery<ResultSetHeader>(query, [id])
-    return result.affectedRows > 0
+    const client = await pool.connect()
+    const result = await client.query(query, [id])
+    client.release()
+    return result.rowCount !== null && result.rowCount > 0
   } catch (error) {
     throw new DatabaseError(
       `Failed to delete school with ID ${id}`,
@@ -138,11 +140,11 @@ export async function deleteSchool(id: number): Promise<boolean> {
 }
 
 export async function getSchoolsByCity(city: string): Promise<School[]> {
-  const query = 'SELECT * FROM schools WHERE city = ? ORDER BY name'
+  const query = 'SELECT * FROM schools WHERE city = $1 ORDER BY name'
   
   try {
-    const results = await executeQuery<RowDataPacket[]>(query, [city])
-    return results as School[]
+    const results = await executeQuery<School[]>(query, [city])
+    return results
   } catch (error) {
     throw new DatabaseError(
       `Failed to get schools by city ${city}`,
@@ -152,11 +154,11 @@ export async function getSchoolsByCity(city: string): Promise<School[]> {
 }
 
 export async function getSchoolsByState(state: string): Promise<School[]> {
-  const query = 'SELECT * FROM schools WHERE state = ? ORDER BY city, name'
+  const query = 'SELECT * FROM schools WHERE state = $1 ORDER BY city, name'
   
   try {
-    const results = await executeQuery<RowDataPacket[]>(query, [state])
-    return results as School[]
+    const results = await executeQuery<School[]>(query, [state])
+    return results
   } catch (error) {
     throw new DatabaseError(
       `Failed to get schools by state ${state}`,

@@ -6,7 +6,7 @@
  * Run this after setting up MySQL server and configuring environment variables
  */
 
-const mysql = require('mysql2/promise')
+const { Pool } = require('pg')
 require('dotenv').config({ path: '.env.local' })
 
 const dbConfig = {
@@ -14,10 +14,10 @@ const dbConfig = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'school_management',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 }
 
 async function setupDatabase() {
@@ -29,33 +29,23 @@ async function setupDatabase() {
   console.log(`   Port: ${dbConfig.port}`)
   console.log('')
 
-  let tempPool, mainPool
+  let pool
 
   try {
-    // Step 1: Create database if it doesn't exist
-    console.log('📦 Creating database if it doesn\'t exist...')
-    const { database, ...configWithoutDb } = dbConfig
-    tempPool = mysql.createPool(configWithoutDb)
-    
-    const connection = await tempPool.getConnection()
-    await connection.execute(`CREATE DATABASE IF NOT EXISTS \`${database}\``)
-    connection.release()
-    console.log(`✅ Database '${database}' is ready`)
-
-    // Step 2: Connect to the specific database
+    // Step 1: Connect to the database (should already exist)
     console.log('🔌 Connecting to database...')
-    mainPool = mysql.createPool(dbConfig)
+    pool = new Pool(dbConfig)
     
-    const testConnection = await mainPool.getConnection()
-    await testConnection.ping()
-    testConnection.release()
+    const client = await pool.connect()
+    await client.query('SELECT NOW()')
+    client.release()
     console.log('✅ Database connection successful')
 
-    // Step 3: Create schools table
+    // Step 2: Create schools table
     console.log('🏗️  Creating schools table...')
     const createTableQuery = `
       CREATE TABLE IF NOT EXISTS schools (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         address VARCHAR(500) NOT NULL,
         city VARCHAR(100) NOT NULL,
@@ -64,35 +54,41 @@ async function setupDatabase() {
         email_id VARCHAR(255) NOT NULL,
         image VARCHAR(500),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_city (city),
-        INDEX idx_state (state),
-        INDEX idx_name (name)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE INDEX IF NOT EXISTS idx_schools_city ON schools(city);
+      CREATE INDEX IF NOT EXISTS idx_schools_state ON schools(state);
+      CREATE INDEX IF NOT EXISTS idx_schools_name ON schools(name);
     `
 
-    const tableConnection = await mainPool.getConnection()
-    await tableConnection.execute(createTableQuery)
-    tableConnection.release()
+    const tableClient = await pool.connect()
+    await tableClient.query(createTableQuery)
+    tableClient.release()
     console.log('✅ Schools table created successfully')
 
-    // Step 4: Verify table structure
+    // Step 3: Verify table structure
     console.log('🔍 Verifying table structure...')
-    const verifyConnection = await mainPool.getConnection()
-    const [columns] = await verifyConnection.execute('DESCRIBE schools')
-    verifyConnection.release()
+    const verifyClient = await pool.connect()
+    const columnsResult = await verifyClient.query(`
+      SELECT column_name, data_type, is_nullable 
+      FROM information_schema.columns 
+      WHERE table_name = 'schools' 
+      ORDER BY ordinal_position
+    `)
+    verifyClient.release()
     
     console.log('📊 Table structure:')
-    columns.forEach(col => {
-      console.log(`   ${col.Field}: ${col.Type} ${col.Null === 'NO' ? '(required)' : '(optional)'}`)
+    columnsResult.rows.forEach(col => {
+      console.log(`   ${col.column_name}: ${col.data_type} ${col.is_nullable === 'NO' ? '(required)' : '(optional)'}`)
     })
 
-    // Step 5: Test basic operations
+    // Step 4: Test basic operations
     console.log('🧪 Testing basic operations...')
-    const queryConnection = await mainPool.getConnection()
-    const [rows] = await queryConnection.execute('SELECT COUNT(*) as count FROM schools')
-    queryConnection.release()
-    console.log(`✅ Schools table has ${rows[0].count} records`)
+    const queryClient = await pool.connect()
+    const countResult = await queryClient.query('SELECT COUNT(*) as count FROM schools')
+    queryClient.release()
+    console.log(`✅ Schools table has ${countResult.rows[0].count} records`)
 
     console.log('')
     console.log('🎉 Database setup completed successfully!')
@@ -104,14 +100,17 @@ async function setupDatabase() {
     console.error('❌ Database setup failed:')
     
     if (error.code === 'ECONNREFUSED') {
-      console.error('🔴 Cannot connect to MySQL server')
-      console.error('💡 Make sure MySQL is running and accessible')
-      console.error('   - Windows: Check MySQL service in Services panel')
-      console.error('   - macOS: brew services start mysql')
-      console.error('   - Linux: sudo systemctl start mysql')
-    } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.error('🔴 Cannot connect to PostgreSQL server')
+      console.error('💡 Make sure PostgreSQL is running and accessible')
+      console.error('   - Windows: Check PostgreSQL service in Services panel')
+      console.error('   - macOS: brew services start postgresql')
+      console.error('   - Linux: sudo systemctl start postgresql')
+    } else if (error.code === '28P01') {
       console.error('🔴 Access denied - check your credentials')
       console.error('💡 Verify DB_USER and DB_PASSWORD in .env.local')
+    } else if (error.code === '3D000') {
+      console.error('🔴 Database does not exist')
+      console.error('💡 Create the database first: CREATE DATABASE school_management;')
     } else {
       console.error('🔴 Unexpected error:', error.message)
     }
@@ -121,11 +120,8 @@ async function setupDatabase() {
     process.exit(1)
   } finally {
     // Clean up connections
-    if (tempPool) {
-      await tempPool.end()
-    }
-    if (mainPool) {
-      await mainPool.end()
+    if (pool) {
+      await pool.end()
     }
   }
 }
