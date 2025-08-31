@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
+/* CSS Custom Properties for Theme System */
 :root {
+  /* Light Theme Colors */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
   --primary: #2563eb;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
@@ -16,34 +18,68 @@
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #2563eb;
+  
+  /* Success and Warning Colors */
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  
+  /* Layout and Typography */
   --radius: 0.5rem;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  
+  /* Shadows and Effects */
+  --shadow-soft: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+  --shadow-strong: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+  
+  /* Animation Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  
+  /* Easing Functions */
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0.0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --radius: var(--radius);
+/* Dark Theme */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f8fafc;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #f87171;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3b82f6;
+  --success: #34d399;
+  --warning: #fbbf24;
+  
+  /* Dark theme shadows */
+  --shadow-soft: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
+/* System Preference Detection */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #f8fafc;
     --primary: #3b82f6;
     --primary-foreground: #ffffff;
     --secondary: #1e293b;
@@ -57,36 +93,291 @@
     --border: #334155;
     --input: #334155;
     --ring: #3b82f6;
+    --success: #34d399;
+    --warning: #fbbf24;
+    
+    --shadow-soft: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+    --shadow-strong: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.4);
   }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  transition: background-color var(--duration-normal) var(--ease-in-out),
+              color var(--duration-normal) var(--ease-in-out);
 }
 
-/* Custom scrollbar */
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: 1rem;
+  color: var(--muted-foreground);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--muted);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--muted-foreground);
-  border-radius: 3px;
+  border-radius: 4px;
+  transition: background-color var(--duration-fast) var(--ease-in-out);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--foreground);
 }
 
-/* Smooth transitions */
+::-webkit-scrollbar-corner {
+  background: var(--muted);
+}
+
+/* Firefox Scrollbar */
 * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) var(--muted);
+}
+
+/* Global Transitions and Micro-interactions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, 
+                      fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: var(--ease-in-out);
+  transition-duration: var(--duration-fast);
+}
+
+/* Focus Styles */
+*:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+::-moz-selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Button and Interactive Element Enhancements */
+button, [role="button"], input[type="submit"], input[type="button"] {
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-in-out);
+}
+
+button:disabled, [role="button"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Form Element Enhancements */
+input, textarea, select {
+  transition: border-color var(--duration-fast) var(--ease-in-out),
+              box-shadow var(--duration-fast) var(--ease-in-out),
+              background-color var(--duration-fast) var(--ease-in-out);
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Link Enhancements */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-in-out);
+}
+
+a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* Image Optimization */
+img {
+  max-width: 100%;
+  height: auto;
+  transition: opacity var(--duration-normal) var(--ease-in-out);
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-in-out);
+}
+
+/* Utility Classes for Animations */
+.animate-fade-in {
+  animation: fadeIn var(--duration-slow) var(--ease-out);
+}
+
+.animate-slide-in {
+  animation: slideIn var(--duration-normal) var(--ease-out);
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-fast) var(--ease-out);
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 0.6s var(--ease-bounce);
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.hover-glow:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Glass Morphism Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card Hover Effects */
+.card-hover {
+  transition: transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-strong);
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg, var(--muted) 25%, var(--accent) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }

@@ -41,21 +41,21 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div className={cn(
       'flex flex-col items-center justify-center py-16 px-6 text-center',
-      'bg-white rounded-lg border border-gray-200 shadow-sm',
+      'bg-background rounded-lg border border-border shadow-soft animate-fade-in',
       className
     )}>
       {/* Icon */}
-      <div className="mb-6">
+      <div className="mb-6 text-muted-foreground">
         {icon || defaultIcon}
       </div>
 
       {/* Title */}
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <h3 className="text-xl font-semibold text-foreground mb-2">
         {title}
       </h3>
 
       {/* Description */}
-      <p className="text-gray-600 mb-8 max-w-md leading-relaxed">
+      <p className="text-muted-foreground mb-8 max-w-md leading-relaxed">
         {description}
       </p>
 
@@ -63,7 +63,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {onAction && (
         <Button
           onClick={onAction}
-          variant="primary"
+          variant="default"
           size="lg"
           className="min-w-[140px]"
         >

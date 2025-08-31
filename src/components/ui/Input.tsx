@@ -1,12 +1,13 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { getInputClasses } from '@/lib/styles';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   success?: boolean;
   helperText?: string;
-  variant?: 'default' | 'error' | 'success';
+  variant?: 'default' | 'error' | 'success' | 'warning';
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -29,38 +30,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     // Determine variant based on props
     const currentVariant = error ? 'error' : success ? 'success' : variant;
     
-    const baseStyles = 'flex h-10 w-full rounded-md border px-3 py-2 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
-    
-    const variants = {
-      default: 'border-gray-300 bg-white focus-visible:ring-blue-500 focus-visible:border-blue-500',
-      error: 'border-red-500 bg-white focus-visible:ring-red-500 focus-visible:border-red-500 text-red-900',
-      success: 'border-green-500 bg-white focus-visible:ring-green-500 focus-visible:border-green-500 text-green-900'
-    };
-
     return (
       <div className="space-y-2">
         {label && (
           <label 
             htmlFor={inputId}
             className={cn(
-              'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-              currentVariant === 'error' && 'text-red-700',
-              currentVariant === 'success' && 'text-green-700'
+              'text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+              currentVariant === 'error' && 'text-destructive',
+              currentVariant === 'success' && 'text-success',
+              currentVariant === 'warning' && 'text-warning'
             )}
           >
             {label}
-            {required && <span className="text-red-500 ml-1" aria-label="required">*</span>}
+            {required && <span className="text-destructive ml-1" aria-label="required">*</span>}
           </label>
         )}
         
         <div className="relative">
           <input
             type={type}
-            className={cn(
-              baseStyles,
-              variants[currentVariant],
-              className
-            )}
+            className={getInputClasses(currentVariant, className)}
             ref={ref}
             id={inputId}
             disabled={disabled}
@@ -77,7 +67,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {currentVariant === 'success' && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
               <svg
-                className="h-5 w-5 text-green-500"
+                className="h-5 w-5 text-success"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -97,7 +87,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           {currentVariant === 'error' && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
               <svg
-                className="h-5 w-5 text-red-500"
+                className="h-5 w-5 text-destructive"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -112,13 +102,33 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               </svg>
             </div>
           )}
+
+          {/* Warning icon */}
+          {currentVariant === 'warning' && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg
+                className="h-5 w-5 text-warning"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+          )}
         </div>
         
         {/* Error message */}
         {error && (
           <p 
             id={`${inputId}-error`}
-            className="text-sm text-red-600"
+            className="text-sm text-destructive animate-slide-in"
             role="alert"
           >
             {error}
@@ -131,7 +141,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             id={`${inputId}-helper`}
             className={cn(
               'text-sm',
-              currentVariant === 'success' ? 'text-green-600' : 'text-gray-500'
+              currentVariant === 'success' ? 'text-success' : 
+              currentVariant === 'warning' ? 'text-warning' : 
+              'text-muted-foreground'
             )}
           >
             {helperText}

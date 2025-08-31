@@ -28,8 +28,8 @@ export default function HomePageClient() {
       }
     >
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+      <div className="relative overflow-hidden bg-gradient-to-br from-background via-muted to-accent animate-fade-in">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%239C92AC%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%224%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
         
         <div className="relative container mx-auto px-4 py-20 lg:py-32">
           <div className="text-center max-w-4xl mx-auto">
@@ -42,14 +42,14 @@ export default function HomePageClient() {
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight animate-slide-in">
               Welcome to
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              <span className="block gradient-text">
                 School Management
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed animate-slide-in">
               A modern platform to manage and discover educational institutions with ease. 
               Connect, explore, and grow your educational community.
             </p>
@@ -58,7 +58,7 @@ export default function HomePageClient() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
               <Link
                 href="/add-school"
-                className="group inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="group inline-flex items-center px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-lg transition-all duration-200 shadow-medium hover:shadow-strong hover-lift"
               >
                 <svg className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -68,7 +68,7 @@ export default function HomePageClient() {
               
               <Link
                 href="/schools"
-                className="group inline-flex items-center px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl border border-gray-200 transform hover:-translate-y-0.5"
+                className="group inline-flex items-center px-8 py-4 bg-background hover:bg-accent text-foreground rounded-xl font-semibold text-lg transition-all duration-200 shadow-medium hover:shadow-strong border border-border hover-lift"
               >
                 <svg className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />

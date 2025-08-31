@@ -1,8 +1,11 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { getCardClasses } from '@/lib/styles';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  variant?: 'default' | 'elevated' | 'glass' | 'outline';
+  hover?: boolean;
 }
 
 export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -32,11 +35,13 @@ export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraph
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, ...props }, ref) => (
+  ({ className, children, variant = 'default', hover = true, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:scale-[1.02] overflow-hidden',
+        getCardClasses(variant),
+        hover && 'card-hover',
+        'overflow-hidden animate-fade-in',
         className
       )}
       {...props}
@@ -104,7 +109,7 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
     <Component
       ref={ref}
       className={cn(
-        'text-lg font-semibold leading-none tracking-tight text-gray-900',
+        'text-lg font-semibold leading-none tracking-tight text-foreground',
         className
       )}
       {...props}
@@ -118,7 +123,7 @@ const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionPr
   ({ className, children, ...props }, ref) => (
     <p
       ref={ref}
-      className={cn('text-sm text-gray-600 leading-relaxed', className)}
+      className={cn('text-sm text-muted-foreground leading-relaxed', className)}
       {...props}
     >
       {children}
