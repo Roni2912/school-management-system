@@ -50,8 +50,8 @@ export async function testConnection(): Promise<boolean> {
     if (process.env.NODE_ENV === 'production') {
       console.error('❌ Production DB Error:', {
         message: error instanceof Error ? error.message : 'Unknown',
-        code: (error as any)?.code,
-        name: (error as any)?.name
+        code: (error as Record<string, unknown>)?.code,
+        name: (error as Record<string, unknown>)?.name
       })
     }
     return false
