@@ -72,9 +72,9 @@ export async function createSchoolsTable(): Promise<void> {
   }
 }
 
-export async function executeQuery<T = any>(
+export async function executeQuery<T = unknown>(
   query: string,
-  params: any[] = []
+  params: unknown[] = []
 ): Promise<T> {
   let client
   try {
